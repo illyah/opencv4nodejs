@@ -8,9 +8,16 @@ NAN_MODULE_INIT(VideoCapture::Init) {
   constructor.Reset(ctor);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(FF_NEW_STRING("VideoCapture"));
-	Nan::SetPrototypeMethod(ctor, "read", Read);
+  Nan::SetPrototypeMethod(ctor, "read", Read);
   Nan::SetPrototypeMethod(ctor, "reset", Reset);
-	Nan::SetPrototypeMethod(ctor, "readAsync", ReadAsync);
+  Nan::SetPrototypeMethod(ctor, "readAsync", ReadAsync);
+  Nan::SetPrototypeMethod(ctor, "setPosition", SetPosition);
+  Nan::SetPrototypeMethod(ctor, "getFrameAt", GetFrameAt);
+  Nan::SetPrototypeMethod(ctor, "getFrameCount", GetFrameCount);
+  Nan::SetPrototypeMethod(ctor, "getFPS", GetFPS);
+  Nan::SetPrototypeMethod(ctor, "getWidth", GetWidth);
+  Nan::SetPrototypeMethod(ctor, "getHeight", GetHeight);
+  Nan::SetPrototypeMethod(ctor, "release", Release);
   target->Set(FF_NEW_STRING("VideoCapture"), ctor->GetFunction());
 };
 
@@ -65,16 +72,75 @@ NAN_METHOD(VideoCapture::ReadAsync) {
 }
 
 NAN_METHOD(VideoCapture::SetPosition) {
-        FF_METHOD_CONTEXT("VideoCapture::SetPosition");
+	FF_METHOD_CONTEXT("VideoCapture::SetPosition");
+	VideoCapture* self = FF_UNWRAP(info.This(), VideoCapture);
+
+	if(info.Length() != 1)
+	return;
+
+	int pos = info[0]->IntegerValue();
+
+	self->cap.set(CV_CAP_PROP_POS_FRAMES, pos);
+
+	return;
+
+}
+
+NAN_METHOD(VideoCapture::GetFrameAt) {
+        FF_METHOD_CONTEXT("VideoCapture::GetFrameAt");
         VideoCapture* self = FF_UNWRAP(info.This(), VideoCapture);
 
-        if(info.Length() != 1)
-        return;
+		if(info.Length() != 1)
+		return;
 
-        int pos = info[0]->IntegerValue();
+		int pos = info[0]->IntegerValue();
 
-        self->cap.set(CV_CAP_PROP_POS_FRAMES, pos);
+		self->cap.set(CV_CAP_PROP_POS_MSEC, pos);
 
-        return;
+		return;
+}
 
+NAN_METHOD(VideoCapture::GetFrameCount) {
+        FF_METHOD_CONTEXT("VideoCapture::GetFrameCount");
+        VideoCapture* self = FF_UNWRAP(info.This(), VideoCapture);
+
+        int cnt = int(self->cap.get(CV_CAP_PROP_FRAME_COUNT));
+
+        info.GetReturnValue().Set(Nan::New<v8::Number>(cnt));
+
+}
+
+NAN_METHOD(VideoCapture::GetFPS) {
+        FF_METHOD_CONTEXT("VideoCapture::GetFPS");
+        VideoCapture* self = FF_UNWRAP(info.This(), VideoCapture);
+
+		int fps = int(self->cap.get(CV_CAP_PROP_FPS));
+
+		info.GetReturnValue().Set(Nan::New<v8::Number>(fps)); 
+}
+
+NAN_METHOD(VideoCapture::GetHeight) {
+        FF_METHOD_CONTEXT("VideoCapture::GetHeight");
+        VideoCapture* self = FF_UNWRAP(info.This(), VideoCapture);
+
+		int cnt = int(self->cap.get(CV_CAP_PROP_FRAME_HEIGHT));
+
+		info.GetReturnValue().Set(Nan::New<v8::Number>(cnt));
+}
+
+NAN_METHOD(VideoCapture::GetWidth) {
+       FF_METHOD_CONTEXT("VideoCapture::GetWidth");
+       VideoCapture* self = FF_UNWRAP(info.This(), VideoCapture);
+
+		int cnt = int(self->cap.get(CV_CAP_PROP_FRAME_WIDTH));
+
+		info.GetReturnValue().Set(Nan::New<v8::Number>(cnt));
+}
+
+NAN_METHOD(VideoCapture::Release) {
+       FF_METHOD_CONTEXT("VideoCapture::Release");
+       VideoCapture* self = FF_UNWRAP(info.This(), VideoCapture);
+
+		self->cap.release();
+		return;
 }
