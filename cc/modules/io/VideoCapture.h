@@ -16,6 +16,13 @@ public:
 	static NAN_METHOD(Reset);
 	static NAN_METHOD(ReadAsync);
 	static NAN_METHOD(SetPosition);
+        static NAN_METHOD(GetFrameAt);
+        static NAN_METHOD(GetFrameCount);
+        static NAN_METHOD(GetFPS);
+        static NAN_METHOD(GetHeight);
+        static NAN_METHOD(GetWidth);
+        static NAN_METHOD(Release);
+
 
 	static Nan::Persistent<v8::FunctionTemplate> constructor;
 
