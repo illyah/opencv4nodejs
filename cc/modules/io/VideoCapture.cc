@@ -63,3 +63,18 @@ NAN_METHOD(VideoCapture::ReadAsync) {
 		ctx
 	));
 }
+
+NAN_METHOD(VideoCapture::SetPosition) {
+        FF_METHOD_CONTEXT("VideoCapture::SetPosition");
+        VideoCapture* self = FF_UNWRAP(info.This(), VideoCapture);
+
+        if(info.Length() != 1)
+        return;
+
+        int pos = info[0]->IntegerValue();
+
+        self->cap.set(CV_CAP_PROP_POS_FRAMES, pos);
+
+        return;
+
+}
